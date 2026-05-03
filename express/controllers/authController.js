@@ -2,6 +2,7 @@ const User = require("../models/user");
 const {validationResult} = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const AppError = require("../utils/AppError");
 
 
 // register
@@ -46,8 +47,11 @@ exports.register = async (req,res)=> {
 
 //login
 
-exports.login = async (req,res) => {
+exports.login = async (req,res, next) => {
     let {email, password} = req.body;
+
+    if(!email) return next(new AppError("Email is required", 400));
+    if(!password) return next(new AppError("Password is required", 400));
 
     try {
         const user = await User.findOne({email: email});
